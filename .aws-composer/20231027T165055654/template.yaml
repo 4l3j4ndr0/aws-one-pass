@@ -1,0 +1,78 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  AwsOnePassUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AliasAttributes:
+        - email
+        - preferred_username
+      UserPoolName: !Sub ${AWS::StackName}-AwsOnePassUserPool
+      AutoVerifiedAttributes:
+        - email
+  AwsOnePassUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: AwsOnePassUserPoolClient
+      UserPoolId: !Ref AwsOnePassUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+      CallbackURLs:
+        - http://localhost:9090
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - openid
+        - aws.cognito.signin.user.admin
+      SupportedIdentityProviders:
+        - COGNITO
+  UserPoolUICustomization:
+    Type: AWS::Cognito::UserPoolUICustomizationAttachment
+    Properties:
+      UserPoolId: !Ref AwsOnePassUserPool
+      ClientId: !Ref AwsOnePassUserPoolClient
+      CSS: |
+        .banner-customizable {
+          background: linear-gradient(135deg, #e09711 0%, #411329 100%);
+          background-image: url("https://assets.awslearn.cloud/one-pass.png");
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          height: 110px;
+        }
+  AwsOnePassDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: one-pass
+      UserPoolId: !Ref AwsOnePassUserPool
+  AwsOnePassApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub ${AWS::StackName}-AwsOnePassApi
+      StageName: Prod
+      DefinitionBody:
+        openapi: '3.0'
+        info: {}
+        paths:
+          /login:
+            post:
+              responses: {}
+      TracingEnabled: true
+      Cors:
+        MaxAge: 5
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt AwsOnePassUserPool.Arn
+Outputs:
+  LoginURL:
+    Description: Custom Login URL
+    Value: !Sub https://one-pass.auth.${AWS::Region}.amazoncognito.com/login?response_type=token&client_id=${AwsOnePassUserPoolClient}&redirect_uri=http://localhost:9090
+  ApiUrl:
+    Description: Api URL
+    Value: !Sub https://${AwsOnePassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
