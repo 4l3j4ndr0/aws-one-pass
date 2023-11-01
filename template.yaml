@@ -66,6 +66,12 @@ Resources:
                 type: aws_proxy
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretsFunction.Arn}/invocations
               responses: {}
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretsFunction.Arn}/invocations
+              responses: {}
       TracingEnabled: true
       Cors:
         MaxAge: 5
@@ -93,6 +99,12 @@ Resources:
           Properties:
             Path: /secrets
             Method: POST
+            RestApiId: !Ref AwsOnePassApi
+        AwsOnePassApiPUTsecrets:
+          Type: Api
+          Properties:
+            Path: /secrets
+            Method: PUT
             RestApiId: !Ref AwsOnePassApi
   SecretsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
