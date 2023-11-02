@@ -15,7 +15,7 @@ export const useUserStore = defineStore("user", {
           .getCognitoToken(this.access_code)
           .then((token) => {
             LocalStorage.set("token", token);
-            // window.location.replace(window.location.origin);
+            window.location.href = window.location.origin;
           });
       });
     },
