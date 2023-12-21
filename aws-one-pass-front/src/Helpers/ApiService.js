@@ -40,7 +40,7 @@ export default function () {
       axios
         .post(`${url}`, data, {
           headers: {
-            Authorization: `${user.token.id_token}`,
+            Authorization: `Bearer ${user.token.id_token}`,
           },
         })
         .then((response) => {
@@ -57,7 +57,7 @@ export default function () {
       axios
         .get(`${url}`, {
           headers: {
-            Authorization: `${user.token.id_token}`,
+            Authorization: `Bearer ${user.token.id_token}`,
           },
         })
         .then((response) => {
@@ -75,7 +75,7 @@ export default function () {
       axios
         .delete(`${url}`, {
           headers: {
-            Authorization: `${user.token.id_token}`,
+            Authorization: ` Bearer ${user.token.id_token}`,
           },
         })
         .then((response) => {
@@ -92,7 +92,7 @@ export default function () {
       axios
         .put(`${url}`, data, {
           headers: {
-            Authorization: `${user.token.id_token}`,
+            Authorization: `Bearer ${user.token.id_token}`,
           },
         })
         .then((response) => {

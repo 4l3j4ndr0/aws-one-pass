@@ -17,6 +17,7 @@ export default function () {
       case "success":
         $q.notify({
           type: "positive",
+          position: "top-right",
           timeout,
           message,
           actions: [
@@ -30,6 +31,7 @@ export default function () {
       case "warning":
         $q.notify({
           type: "warning",
+          position: "top-right",
           message,
           timeout,
           textColor: "white",
@@ -44,6 +46,7 @@ export default function () {
       case "error":
         $q.notify({
           type: "negative",
+          position: "top-right",
           timeout,
           message,
           actions: [
@@ -57,6 +60,7 @@ export default function () {
       case "info":
         $q.notify({
           type: "info",
+          position: "top-right",
           timeout,
           message,
           actions: [

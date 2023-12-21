@@ -2,32 +2,11 @@
   <q-card class="justify-center">
     <q-card-section>
       <q-form ref="myForm" @submit="onSubmit" class="q-gutter-md">
-        <q-btn-dropdown
-          dense
-          color="orange-10"
-          :label="secret.vault"
-          style="width: 100%"
-          icon="vpn_key"
-        >
-          <q-list>
-            <q-item
-              clickable
-              v-close-popup
-              @click="secret.vault = item"
-              v-for="item in vault.vaults"
-            >
-              <q-item-section>
-                <q-item-label>{{ item.toUpperCase() }}</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable v-close-popup @click="onItemClick">
-              <q-item-section>
-                <q-item-label>ADD NEW VAULT</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+        <div style="text-align: center">
+          <q-chip color="blue-8" text-color="white" icon="private_connectivity"
+            ><b>{{ secret.vault.toUpperCase() }}</b></q-chip
+          >
+        </div>
         <q-input readonly dense v-model="secret.name" label="Identifier name" />
         <q-input
           dense
@@ -35,10 +14,14 @@
           label="Username"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Required.']"
-        />
+        >
+          <template v-slot:append>
+            <q-btn round dense flat icon="content_copy" />
+          </template>
+        </q-input>
         <q-input
           dense
-          v-model="secret.password"
+          v-model="secret.content"
           label="Password"
           type="password"
           lazy-rules
@@ -53,20 +36,21 @@
         </q-input>
         <q-input
           dense
-          v-model="secret.url"
+          v-model="secret.website"
           label="Web site"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Required.']"
         >
           <template v-slot:append>
             <q-btn round dense flat icon="language" />
+            <q-btn round dense flat icon="content_copy" />
           </template>
         </q-input>
 
         <div style="text-align: center">
           <q-btn
             style="width: 80%"
-            label="Save"
+            label="Update information"
             type="submit"
             color="primary"
           />
@@ -78,8 +62,29 @@
 
 <script setup lang="ts">
 import { ref, toRefs } from "vue";
-import { useVaultStore } from "../stores/vaults";
+import { useSecretStore } from "src/stores/secrets";
+import mixin from "../mixins/mixin";
+const { showLoading, hideLoading, showNoty } = mixin();
+const myForm: any = ref(null);
 const props = defineProps(["secret"]);
+const s = useSecretStore();
 const { secret } = toRefs(props);
-const vault = useVaultStore();
+const onSubmit = () => {
+  myForm.value.validate().then((success: any) => {
+    if (success) {
+      showLoading("Updating parameter...");
+      s.updateSecret()
+        .then((response) => {
+          hideLoading();
+          showNoty("success", "The parameter was updated success.");
+        })
+        .catch((e) => {
+          hideLoading();
+        });
+    } else {
+      // oh no, user has filled in
+      // at least one invalid value
+    }
+  });
+};
 </script>

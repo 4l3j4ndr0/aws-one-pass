@@ -54,19 +54,31 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub ${AWS::StackName}-AwsOnePassApi
-      StageName: Prod
+      StageName: prod
       DefinitionBody:
         openapi: '3.0'
         info: {}
         paths:
           /secrets:
             post:
+              security:
+                - CognitoAuthorizer: []
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretsFunction.Arn}/invocations
               responses: {}
             put:
+              security:
+                - CognitoAuthorizer: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretsFunction.Arn}/invocations
+              responses: {}
+            get:
+              security:
+                - CognitoAuthorizer: []
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
@@ -75,11 +87,13 @@ Resources:
       TracingEnabled: true
       Cors:
         MaxAge: 5
+        AllowOrigin: '''*'''
+        AllowMethods: '''GET, POST, PUT, OPTIONS'''
+        AllowHeaders: '''Access-Control-Allow-Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
       Auth:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt AwsOnePassUserPool.Arn
-        DefaultAuthorizer: CognitoAuthorizer
   SecretsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -106,6 +120,25 @@ Resources:
             Path: /secrets
             Method: PUT
             RestApiId: !Ref AwsOnePassApi
+        AwsOnePassApiGETsecrets:
+          Type: Api
+          Properties:
+            Path: /secrets
+            Method: GET
+            RestApiId: !Ref AwsOnePassApi
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowParameterStoreActions
+            Effect: Allow
+            Action:
+              - ssm:PutParameter
+              - ssm:AddTagsToResource
+              - ssm:GetParameters
+              - ssm:GetParameter
+              - ssm:DescribeParameters
+              - ssm:ListTagsForResource
+            Resource: '*'
   SecretsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
@@ -117,4 +150,4 @@ Outputs:
     Value: !Sub https://one-pass.auth.${AWS::Region}.amazoncognito.com/oauth2/authorize?response_type=token&client_id=${AwsOnePassUserPoolClient}&redirect_uri=http://localhost:9090
   ApiUrl:
     Description: Api URL
-    Value: !Sub https://${AwsOnePassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+    Value: !Sub https://${AwsOnePassApi}.execute-api.${AWS::Region}.amazonaws.com/prod

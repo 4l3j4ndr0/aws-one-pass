@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-sm items-center">
     <q-btn
-      @click="$router.push('/users/create')"
+      @click="general.setOpenCreateModal(true)"
       color="primary"
       label="Add new item"
       no-caps
@@ -11,10 +11,7 @@
     />
     <div class="row justify-between">
       <div class="col-sm-7">
-        <SecretsList
-          @onItemSelect="(s) => secrets.setSecret(s)"
-          v-model:items="secrets.secrets"
-        ></SecretsList>
+        <SecretsList v-model:items="secrets.secrets"></SecretsList>
       </div>
       <div class="col-sm-5">
         <transition
@@ -29,13 +26,30 @@
         </transition>
       </div>
     </div>
+    <CreateParameter></CreateParameter>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted } from "vue";
 import SecretsList from "src/components/SecretsList.vue";
 import SecretsDetail from "src/components/SecretsDetail.vue";
+import CreateParameter from "src/components/CreateParameter.vue";
 import { useSecretStore } from "src/stores/secrets";
+import mixin from "../mixins/mixin";
+import { useGeneralStore } from "src/stores/general";
+const { showLoading, hideLoading } = mixin();
 const secrets = useSecretStore();
+const general = useGeneralStore();
+onMounted(() => {
+  showLoading("Loading information...");
+  secrets
+    .getSecrets()
+    .then((response) => {
+      hideLoading();
+    })
+    .catch((e) => {
+      hideLoading();
+    });
+});
 </script>
