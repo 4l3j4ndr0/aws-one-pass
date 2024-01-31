@@ -14,14 +14,15 @@ Resources:
   AwsOnePassUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: AwsOnePassUserPoolClient
+      ClientName: AwsOnePass
       UserPoolId: !Ref AwsOnePassUserPool
       GenerateSecret: false
       ExplicitAuthFlows:
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_SRP_AUTH
       CallbackURLs:
-        - http://localhost:9090
+        - http://localhost:9000
+        - http://localhost:9200
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
         - code
@@ -39,7 +40,7 @@ Resources:
       CSS: |
         .banner-customizable {
           background: linear-gradient(135deg, #e09711 0%, #411329 100%);
-          background-image: url("https://assets.awslearn.cloud/one-pass.png");
+          background-image: url("https://asset.awslearn.cloud/one-pass.png");
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
@@ -48,7 +49,7 @@ Resources:
   AwsOnePassDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: one-pass
+      Domain: one-password
       UserPoolId: !Ref AwsOnePassUserPool
   AwsOnePassApi:
     Type: AWS::Serverless::Api
@@ -147,7 +148,7 @@ Resources:
 Outputs:
   LoginURL:
     Description: Custom Login URL
-    Value: !Sub https://one-pass.auth.${AWS::Region}.amazoncognito.com/oauth2/authorize?response_type=token&client_id=${AwsOnePassUserPoolClient}&redirect_uri=http://localhost:9090
+    Value: !Sub https://one-password.auth.${AWS::Region}.amazoncognito.com/oauth2/authorize?response_type=token&client_id=${AwsOnePassUserPoolClient}&redirect_uri=http://localhost:9090
   ApiUrl:
     Description: Api URL
     Value: !Sub https://${AwsOnePassApi}.execute-api.${AWS::Region}.amazonaws.com/prod

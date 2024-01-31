@@ -15,7 +15,9 @@
     "build-bex": "quasar build --mode bex"
   },
   "dependencies": {
+    "@aws-amplify/ui-vue": "^4.1.0",
     "@quasar/extras": "^1.16.4",
+    "aws-amplify": "^6.0.13",
     "axios": "^1.2.1",
     "dotenv": "^16.3.1",
     "events": "^3.3.0",

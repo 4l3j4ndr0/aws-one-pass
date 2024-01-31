@@ -39,9 +39,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { debounce } from "quasar";
-import EssentialLink, {
-  EssentialLinkProps,
-} from "components/EssentialLink.vue";
 import { useUserStore } from "../stores/User";
 import { useSecretStore } from "src/stores/secrets";
 

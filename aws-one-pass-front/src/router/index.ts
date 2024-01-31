@@ -8,7 +8,7 @@ import {
 
 import routes from "./routes";
 import { useUserStore } from "src/stores/User";
-
+import { useQuasar } from "quasar";
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -37,6 +37,7 @@ export default route(function (/* { store, ssrContext } */) {
   });
 
   Router.beforeEach((to, from, next) => {
+    if (to.path === "/login" && useQuasar().platform.is.bex) next();
     if (to.path !== "/login") {
       if (!user.token) {
         next({
