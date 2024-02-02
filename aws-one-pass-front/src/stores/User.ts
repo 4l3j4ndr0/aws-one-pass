@@ -1,6 +1,16 @@
 import { defineStore } from "pinia";
 import ApiService from "../Helpers/ApiService";
 import { LocalStorage } from "quasar";
+import { Amplify } from "aws-amplify";
+import { signIn, signOut, fetchAuthSession } from "aws-amplify/auth";
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      userPoolId: process.env.COGNITO_USER_POOL_ID || "",
+      userPoolClientId: process.env.COGNITO_CLIENT_ID || "",
+    },
+  },
+});
 export const useUserStore = defineStore("user", {
   state: () => ({
     users: [],
@@ -19,18 +29,43 @@ export const useUserStore = defineStore("user", {
           });
       });
     },
-    logOut() {
-      return new Promise((resolve, reject) => {
-        ApiService()
-          .get("/api/logout")
-          .then((response) => {
-            this.token = null;
-            resolve(response.data);
-          })
-          .catch((error) => {
-            reject(error);
+    async currentSession() {
+      try {
+        const token: any = (await fetchAuthSession()).tokens ?? {};
+        console.log("TOKEN:::", token);
+
+        if (token && token.idToken) {
+          LocalStorage.set("token", {
+            id_token: token.idToken.toString(),
           });
-      });
+          this.setToken({
+            id_token: token.idToken.toString(),
+          });
+        }
+
+        return token;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async logIn(username: string, password: string) {
+      try {
+        const { isSignedIn, nextStep } = await signIn({ username, password });
+        return isSignedIn;
+      } catch (error) {
+        console.log("error signing in", error);
+        return error;
+      }
+    },
+    async logOut() {
+      try {
+        await signOut({ global: true });
+        LocalStorage.clear();
+        return true;
+      } catch (error) {
+        console.log("error signing out: ", error);
+        return error;
+      }
     },
     setAccessCode(code: any) {
       this.access_code = code;
@@ -38,77 +73,6 @@ export const useUserStore = defineStore("user", {
     },
     setToken(token: any) {
       this.token = token;
-    },
-    getUsers(
-      page: Number = 1,
-      rowsPerPage: Number = 25,
-      filter: any,
-      onlyStudentTeacher: Boolean = false
-    ) {
-      return new Promise((resolve, reject) => {
-        ApiService()
-          .get(
-            `/api/user/list${`?page=${page}`}&rows=${rowsPerPage}&filter=${filter}&onlyStudentTeacher=${onlyStudentTeacher}`
-          )
-          .then((response) => {
-            // console.log("RESPUESTA USERS:::", response.data);
-            this.users = response.data.data.data;
-            resolve(response.data.data.data);
-          })
-          .catch((error) => {
-            // console.log("ERROR USERS:::", error);
-            reject(error);
-          });
-      });
-    },
-    createUser(user: any) {
-      return new Promise((resolve, reject) => {
-        ApiService()
-          .post(`/api/user/create`, user)
-          .then((response) => {
-            resolve(response);
-          })
-          .catch((error) => reject(error));
-      });
-    },
-    getUser(id: Number) {
-      return new Promise((resolve, reject) => {
-        ApiService()
-          .get(`/api/user/get/${id}`)
-          .then((response) => {
-            this.user = response.data.data;
-            resolve(response.data);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
-    },
-    updateUser(user: any) {
-      user.tipo_personas_id_fk = user.tipo_personas_id_fk.value;
-      return new Promise((resolve, reject) => {
-        ApiService()
-          .put(`/api/user/update`, user)
-          .then((response) => {
-            console.log("Update usuario:::", response.data);
-            resolve(response);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
-    },
-    deleteUser(id: Number) {
-      return new Promise((resolve, reject) => {
-        ApiService()
-          .remove(`/api/user/delete/${id}`)
-          .then((response) => {
-            resolve(response);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
     },
   },
 });

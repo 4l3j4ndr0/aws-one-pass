@@ -66,7 +66,7 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
     });
   });
 
-  chrome.tabs.onCreated.addListener((tab) => {
+  chrome.tabs.onCreated.addListener((tab: any) => {
     bridge.send("bex.tab.opened", { url: tab.url });
   });
   // Usage:
@@ -91,4 +91,20 @@ export default bexBackground((bridge /* , allActiveConnections */) => {
     }
   })
    */
+
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    if (tabs.length > 0) {
+      const tab: any = tabs[0];
+      chrome.tabs.executeScript(tab.id, {
+        code: `
+          var mainUrl = "${tab.url}";
+          var iconUrl = "${tab.favIconUrl}";
+  
+          // Log or use the main URL and icon image URL as needed
+          console.log("Main URL:", mainUrl);
+          console.log("Icon Image URL:", iconUrl);
+        `,
+      });
+    }
+  });
 });

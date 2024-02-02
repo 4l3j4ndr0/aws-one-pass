@@ -3,6 +3,11 @@
     <q-card-section>
       <q-form ref="myForm" @submit="onSubmit" class="q-gutter-md">
         <div style="text-align: center">
+          <q-avatar square>
+            <img :src="secret.icon ? secret.icon : 'vault.png'" />
+          </q-avatar>
+        </div>
+        <div style="text-align: center">
           <q-chip color="blue-8" text-color="white" icon="private_connectivity"
             ><b>{{ secret.vault.toUpperCase() }}</b></q-chip
           >
@@ -50,7 +55,8 @@
         <div style="text-align: center">
           <q-btn
             style="width: 80%"
-            label="Update information"
+            no-caps
+            label="Update"
             type="submit"
             color="primary"
           />
@@ -62,7 +68,7 @@
 
 <script setup lang="ts">
 import { ref, toRefs } from "vue";
-import { useSecretStore } from "src/stores/secrets";
+import { useSecretStore } from "../stores/secrets";
 import mixin from "../mixins/mixin";
 const { showLoading, hideLoading, showNoty } = mixin();
 const myForm: any = ref(null);

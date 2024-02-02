@@ -36,20 +36,30 @@ export default route(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach((to, from, next) => {
-    if (to.path === "/login" && useQuasar().platform.is.bex) next();
-    if (to.path !== "/login") {
-      if (!user.token) {
-        next({
-          path: "/login",
-        });
-      }
-      next();
-    } else {
-      if (user.token) {
+  Router.beforeEach(async (to, from, next) => {
+    if (to.path === "/login" && useQuasar().platform.is.bex) {
+      const token = await user.currentSession();
+      if (token && token.idToken) {
         next({
           path: "/",
         });
+      } else {
+        next();
+      }
+    } else {
+      if (to.path !== "/login") {
+        if (!user.token) {
+          next({
+            path: "/login",
+          });
+        }
+        next();
+      } else {
+        if (user.token) {
+          next({
+            path: "/",
+          });
+        }
       }
     }
   });

@@ -10,7 +10,7 @@ export default bexContent((bridge) => {
     if (event.data.yourProp) {
       // Access a DOM element from here.
       // Document in this instance is the underlying website the contentScript runs on
-      const el: any = document.getElementById("some-id");
+      const el: any = document.getElementsByClassName("some-id");
       if (el) {
         el.value = "Quasar Rocks!";
       }

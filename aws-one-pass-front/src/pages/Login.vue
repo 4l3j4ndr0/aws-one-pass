@@ -1,5 +1,7 @@
 <template>
-  <q-layout>
+  <q-layout
+    :style="$q.platform.is.bex ? 'min-width: 750px; min-height: 500px' : ''"
+  >
     <q-page-container>
       <q-page class="flex bg-image flex-center">
         <q-card>
@@ -34,9 +36,9 @@
                   style="width: 50%"
                   no-caps
                   label="Login"
-                  to="/"
-                  type="button"
+                  type="submit"
                   color="primary"
+                  :loading="loading"
                 />
               </div>
             </q-form>
@@ -47,24 +49,20 @@
   </q-layout>
 </template>
 <script setup lang="ts">
-import { Amplify } from "aws-amplify";
-import { signIn, type SignInInput } from "aws-amplify/auth";
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: "us-east-1_CrfiTvV5w",
-      userPoolClientId: "3tm7me8194ksbch0u9eicai0b8",
-    },
-  },
-});
 import { ref } from "vue";
-const loginForm: any = ref(null);
-const username = ref(null);
-const password = ref(null);
+import { useUserStore } from "../stores/User";
 
-const onSubmit = () => {
-  loginForm.value.validate().then((success: any) => {
+const user = useUserStore();
+const loginForm: any = ref(null);
+const username = ref("");
+const password = ref("");
+const loading = ref(false);
+const onSubmit = async () => {
+  loginForm.value.validate().then(async (success: any) => {
     if (success) {
+      loading.value = true;
+      await user.logIn(username.value, password.value);
+      loading.value = false;
     }
   });
 };

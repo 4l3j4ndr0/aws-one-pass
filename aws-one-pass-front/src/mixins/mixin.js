@@ -1,15 +1,30 @@
 import { useQuasar } from "quasar";
-
+import { useGeneralStore } from "src/stores/general";
 export default function () {
+  const general = useGeneralStore();
   const $q = useQuasar();
   const showLoading = (message) => {
-    $q.loading.show({
-      message,
-    });
+    if ($q.platform.is.bex) {
+      general.setLoading({
+        active: true,
+        message,
+      });
+    } else {
+      $q.loading.show({
+        message,
+      });
+    }
   };
 
   const hideLoading = () => {
-    $q.loading.hide();
+    if ($q.platform.is.bex) {
+      general.setLoading({
+        active: false,
+        message: "Please wait...",
+      });
+    } else {
+      $q.loading.hide();
+    }
   };
 
   const showNoty = (type, message, timeout = 5000) => {

@@ -1,19 +1,15 @@
 <template>
-  <q-page class="q-pa-sm items-center">
-    <q-btn
-      @click="general.setOpenCreateModal(true)"
-      color="primary"
-      label="Add new item"
-      no-caps
-      icon="add"
-      push
-      class="q-ml-sm"
-    />
-    <div class="row justify-between">
-      <div class="col-sm-7">
-        <SecretsList v-model:items="secrets.secrets"></SecretsList>
-      </div>
-      <div class="col-sm-5">
+  <q-layout view="lhh LpR lff" container style="height: 100vh">
+    <q-drawer side="left" v-model="drawerLeft" bordered :breakpoint="500">
+      <q-scroll-area class="fit">
+        <div class="q-pa-sm">
+          <SecretsList v-model:items="secrets.secrets"></SecretsList>
+        </div>
+      </q-scroll-area>
+    </q-drawer>
+
+    <q-page-container style="background-color: white">
+      <q-page class="q-pa-md">
         <transition
           appear
           enter-active-class="animated bounceInUp"
@@ -24,23 +20,20 @@
             :secret="secrets.secret"
           ></SecretsDetail>
         </transition>
-      </div>
-    </div>
-    <CreateParameter></CreateParameter>
-  </q-page>
+      </q-page>
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import SecretsList from "src/components/SecretsList.vue";
 import SecretsDetail from "src/components/SecretsDetail.vue";
-import CreateParameter from "src/components/CreateParameter.vue";
-import { useSecretStore } from "src/stores/secrets";
+import { useSecretStore } from "../stores/secrets";
 import mixin from "../mixins/mixin";
-import { useGeneralStore } from "src/stores/general";
 const { showLoading, hideLoading } = mixin();
 const secrets = useSecretStore();
-const general = useGeneralStore();
+const drawerLeft = ref(true);
 onMounted(() => {
   showLoading("Loading information...");
   secrets

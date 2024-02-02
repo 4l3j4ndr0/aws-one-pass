@@ -4,16 +4,22 @@
       @click="onIntemSelect(item)"
       :class="item.selected ? 'bg-grey-7 text-white' : ''"
     >
-      <div style="display: inline">
-        <q-chip
-          size="sm"
-          color="blue-8"
-          text-color="white"
-          icon="private_connectivity"
-        >
-          <b>{{ item.vault.toUpperCase() }}</b>
-        </q-chip>
-        {{ `${item.name} ` }}
+      <div class="row q-gutter-md">
+        <q-avatar square>
+          <img :src="item.icon ? item.icon : 'vault.png'" />
+        </q-avatar>
+        <div class="column" style="text-align: center">
+          <q-chip
+            size="sm"
+            color="blue-8"
+            text-color="white"
+            icon="private_connectivity"
+            class="q-mx-md"
+          >
+            <b>{{ item.vault.toUpperCase() }}</b>
+          </q-chip>
+          <b>{{ `${item.name} ` }}</b>
+        </div>
       </div>
     </q-card-section>
   </q-card>
